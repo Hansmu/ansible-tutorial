@@ -1,0 +1,29 @@
+---
+# A simple smoke-test playbook to verify all hosts are reachable
+# Run with: ansible-playbook /ansible/playbooks/ping.yml
+
+- name: Ping all hosts
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Ping
+      ping:
+
+- name: Gather basic facts from webservers
+  hosts: webservers
+  gather_facts: true
+
+  tasks:
+    - name: Print hostname and OS
+      debug:
+        msg: "Host: {{ inventory_hostname }} | OS: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+
+- name: Gather basic facts from databases
+  hosts: databases
+  gather_facts: true
+
+  tasks:
+    - name: Print hostname and OS
+      debug:
+        msg: "Host: {{ inventory_hostname }} | OS: {{ ansible_distribution }} {{ ansible_distribution_version }}"

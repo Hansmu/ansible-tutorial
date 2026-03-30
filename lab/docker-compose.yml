@@ -1,0 +1,57 @@
+services:
+
+  # ── Control Node ──────────────────────────────────────────────────────────────
+  # This is where you run ansible-playbook commands from.
+  # SSH keys are generated on first start and shared with managed nodes.
+  ansible-control:
+    build:
+      context: .
+      dockerfile: control.Dockerfile
+    container_name: ansible-control
+    hostname: ansible-control
+    volumes:
+      - ./playbooks:/ansible/playbooks       # Mount your playbooks directory
+      - ./inventory:/ansible/inventory       # Mount your inventory directory
+      - ./roles:/ansible/roles               # Mount your roles directory
+      - ./ansible.cfg:/etc/ansible/ansible.cfg
+      - ssh-keys:/root/.ssh                  # Shared SSH keys volume
+    depends_on:
+      - web1
+      - web2
+      - db1
+    # The control node has no long-running foreground process of its own, so without this it would start and immediately exit.
+    # This is a common Docker trick to keep a container alive so you can exec into it on demand.
+    command: tail -f /dev/null
+
+  # ── Managed Nodes ─────────────────────────────────────────────────────────────
+  # These are the hosts Ansible will connect to and manage over SSH.
+
+  web1:
+    build:
+      context: .
+      dockerfile: node.Dockerfile
+    container_name: web1
+    hostname: web1
+    volumes:
+      - ssh-keys:/tmp/ssh-keys:ro              # Read shared public key for auth
+
+  web2:
+    build:
+      context: .
+      dockerfile: node.Dockerfile
+    container_name: web2
+    hostname: web2
+    volumes:
+      - ssh-keys:/tmp/ssh-keys:ro
+
+  db1:
+    build:
+      context: .
+      dockerfile: node.Dockerfile
+    container_name: db1
+    hostname: db1
+    volumes:
+      - ssh-keys:/tmp/ssh-keys:ro
+
+volumes:
+  ssh-keys:
