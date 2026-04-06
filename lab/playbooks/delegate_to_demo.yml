@@ -1,0 +1,61 @@
+---
+# Run with: docker exec -it ansible-control ansible-playbook playbooks/delegate_to_demo.yml
+
+- name: Install curl on db1
+  hosts: db1
+  become: true
+
+  tasks:
+    - name: Install curl
+      # The module being called. apt is Ansible's module for managing packages on Debian-based systems.
+      apt:
+        # The package to act on — tells the apt module we're interested in the curl package.
+        name: curl
+        # Tells the apt module what the desired state is. present means "ensure this package is installed."
+        # If it's already installed, Ansible does nothing — this is what makes the task idempotent.
+        state: present
+        # Equivalent to running apt-get update before installing.
+        # Refreshes the local package index so apt knows about the latest available versions.
+        # Important in a fresh container where the cache may be empty or stale.
+        update_cache: true
+
+- name: Demonstrate delegate_to
+  hosts: webservers
+  become: true
+
+  tasks:
+    - name: Install nginx on web servers
+      apt:
+        name: nginx
+        state: present
+        update_cache: true
+
+    - name: Start nginx on web servers
+      # Ansible's module for managing system services — starting, stopping, restarting, and enabling them.
+      service:
+        name: nginx
+        # The desired state of the service. started means "ensure this service is running."
+        # Like present for packages, if nginx is already running Ansible does nothing.
+        state: started
+
+    - name: Check nginx is running (run this check from db1, not the web server)
+      # The command module runs a shell command on the target host.
+      # The curl command checks whether nginx is responding:
+        # -s silences output
+        # -o /dev/null discards the response body
+        # -w "%{http_code}" prints just the HTTP status code.
+      # {{ inventory_hostname }} is an Ansible variable that resolves to the current host being iterated over — web1 or web2.
+      command: curl -s -o /dev/null -w "%{http_code}" http://{{ inventory_hostname }}
+      delegate_to: db1
+      # Captures the output of the curl command into a variable called http_response so we can use it in the next task.
+      register: http_response
+
+    - name: Print the response code seen from db1
+      # Ansible's module for printing messages during playbook execution.
+      # Useful for inspecting variables and verifying things are working as expected.
+      debug:
+        msg: "db1 got HTTP {{ http_response.stdout }} from {{ inventory_hostname }}"
+      # The debug task also delegates to db1.
+      # Strictly speaking this doesn't change anything observable since debug just prints to the console —
+      # but it's consistent with the previous task and makes it clear that this output is coming from db1's perspective.
+      delegate_to: db1
