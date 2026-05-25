@@ -1,0 +1,22 @@
+---
+- name: Demonstrate set_fact
+  hosts: webservers
+  become: true
+
+  tasks:
+    - name: Get disk usage percentage
+      command: df / --output=pcent
+      register: disk_usage
+      changed_when: false
+
+    - name: Extract just the number from the output
+      set_fact:
+        disk_percent: "{{ disk_usage.stdout_lines[1] | trim | replace('%', '') | int }}"
+
+    - name: Set disk status based on usage
+      set_fact:
+        disk_status: "{{ 'critical' if disk_percent | int > 90 else 'warning' if disk_percent | int > 70 else 'ok' }}"
+
+    - name: Print disk status
+      debug:
+        msg: "{{ inventory_hostname }} disk usage is {{ disk_percent }}% — status: {{ disk_status }}"
