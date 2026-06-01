@@ -3,7 +3,7 @@ FROM python:3.14.3-slim
 RUN apt-get update && apt-get install -y \
     openssh-client \
     sshpass \
-    && pip install ansible \
+    && pip install ansible passlib \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /ansible

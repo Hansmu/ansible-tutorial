@@ -1,0 +1,35 @@
+---
+- name: Demonstrate with_together
+  hosts: webservers
+  become: true
+
+  vars:
+    usernames:
+      - alice
+      - bob
+      - charlie
+    passwords:
+      - secret123
+      - hunter2
+      - letmein
+
+  tasks:
+    - name: Create user accounts with matching passwords
+      user:
+        name: "{{ item[0] }}"
+        password: "{{ item[1] | password_hash('sha512') }}"
+        shell: /bin/bash
+        state: present
+      with_together:
+        - "{{ usernames }}"
+        - "{{ passwords }}"
+
+    - name: Print each user and confirm creation
+      debug:
+        msg: "Created user {{ item[0] }} with a hashed password"
+      with_together:
+        - "{{ usernames }}"
+        - "{{ passwords }}"
+
+
+
