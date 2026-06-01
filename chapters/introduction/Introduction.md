@@ -2,15 +2,18 @@
 
 ## What is Ansible?
 
-Ansible is an open-source **IT automation tool** developed by Michael DeHaan and first released in 2012. Red Hat acquired it in 2015, and it has since become one of the most widely adopted automation platforms in the industry.
+Ansible is an open-source **IT automation tool** developed by Michael DeHaan and first released in 2012. Red Hat
+acquired it in 2015, and it has since become one of the most widely adopted automation platforms in the industry.
 
-At its core, Ansible lets you describe the desired state of your infrastructure and systems in plain, human-readable files — then automatically makes that state a reality across any number of machines simultaneously.
+At its core, Ansible lets you describe the desired state of your infrastructure and systems in plain, human-readable
+files — then automatically makes that state a reality across any number of machines simultaneously.
 
 ---
 
 ## What Problem Does It Solve?
 
-Managing infrastructure manually — SSHing into servers one by one, running commands, editing config files — doesn't scale. It's slow, error-prone, and nearly impossible to repeat consistently across dozens or hundreds of machines.
+Managing infrastructure manually — SSHing into servers one by one, running commands, editing config files — doesn't
+scale. It's slow, error-prone, and nearly impossible to repeat consistently across dozens or hundreds of machines.
 
 Ansible addresses this by allowing you to:
 
@@ -24,23 +27,35 @@ Ansible addresses this by allowing you to:
 ## Key Characteristics
 
 ### Agentless
-Unlike many other automation tools (Puppet, Chef), Ansible requires **no agent software** installed on the machines it manages. It communicates over standard **SSH** (or WinRM for Windows), which means zero setup overhead on target machines.
+
+Unlike many other automation tools (Puppet, Chef), Ansible requires **no agent software** installed on the machines it
+manages. It communicates over standard **SSH** (or WinRM for Windows), which means zero setup overhead on target
+machines.
 
 ### Idempotent
-Ansible tasks are designed to be **idempotent** — running them multiple times produces the same result as running them once. If a package is already installed, Ansible won't reinstall it. This makes automation safe to run repeatedly without side effects.
+
+Ansible tasks are designed to be **idempotent** — running them multiple times produces the same result as running them
+once. If a package is already installed, Ansible won't reinstall it. This makes automation safe to run repeatedly
+without side effects.
 
 ### Declarative & Procedural
-Ansible supports both styles. You can describe *what* you want (install nginx, ensure a user exists) and also define *how* tasks should run in sequence.
+
+Ansible supports both styles. You can describe *what* you want (install nginx, ensure a user exists) and also define
+*how* tasks should run in sequence.
 
 ### Push-Based
-The control node (your laptop or a CI server) **pushes** changes out to managed nodes. There's no need for agents polling a central server.
+
+The control node (your laptop or a CI server) **pushes** changes out to managed nodes. There's no need for agents
+polling a central server.
 
 ---
 
 ## Core Concepts
 
 ### Inventory
-An **inventory** is a list of the hosts (servers, VMs, containers) that Ansible manages. It can be a simple static file or dynamically generated from cloud providers.
+
+An **inventory** is a list of the hosts (servers, VMs, containers) that Ansible manages. It can be a simple static file
+or dynamically generated from cloud providers.
 
 ```ini
 # Example static inventory
@@ -53,7 +68,9 @@ db1.example.com
 ```
 
 ### Playbooks
-**Playbooks** are YAML files that describe automation tasks. They are the heart of Ansible — you write a playbook to express what should happen and on which hosts.
+
+**Playbooks** are YAML files that describe automation tasks. They are the heart of Ansible — you write a playbook to
+express what should happen and on which hosts.
 
 ```yaml
 # Example playbook: install and start nginx
@@ -75,46 +92,58 @@ db1.example.com
 ```
 
 ### Modules
-**Modules** are the building blocks of tasks — pre-written units of work that Ansible ships with. There are hundreds of built-in modules covering everything from package management (`apt`, `yum`) to cloud resources (`aws_ec2`, `azure_rm`) to file operations (`copy`, `template`).
+
+**Modules** are the building blocks of tasks — pre-written units of work that Ansible ships with. There are hundreds of
+built-in modules covering everything from package management (`apt`, `yum`) to cloud resources (`aws_ec2`, `azure_rm`)
+to file operations (`copy`, `template`).
 
 ### Roles
-**Roles** are a way to organise playbooks into reusable, shareable units. A role bundles together tasks, variables, templates, and handlers for a specific purpose (e.g., a "postgresql" role or a "nginx" role).
+
+**Roles** are a way to organise playbooks into reusable, shareable units. A role bundles together tasks, variables,
+templates, and handlers for a specific purpose (e.g., a "postgresql" role or a "nginx" role).
 
 ### Variables
-Ansible supports **variables** at multiple levels (inventory, playbook, role, command line), allowing you to write flexible automation that adapts to different environments (dev, staging, production).
+
+Ansible supports **variables** at multiple levels (inventory, playbook, role, command line), allowing you to write
+flexible automation that adapts to different environments (dev, staging, production).
 
 ### Templates
-Using the **Jinja2** templating engine, Ansible can generate dynamic configuration files from templates, substituting variables at runtime.
+
+Using the **Jinja2** templating engine, Ansible can generate dynamic configuration files from templates, substituting
+variables at runtime.
 
 ### Handlers
-**Handlers** are special tasks that only run when triggered by another task — typically used to restart a service only when its configuration changes.
+
+**Handlers** are special tasks that only run when triggered by another task — typically used to restart a service only
+when its configuration changes.
 
 ---
 
 ## Common Use Cases
 
-| Use Case | Description |
-|---|---|
-| **Configuration Management** | Ensure all servers have the correct packages, users, and config files |
-| **Application Deployment** | Deploy code, restart services, run migrations |
-| **Provisioning** | Spin up cloud infrastructure (EC2 instances, VPCs, DNS records) |
-| **Orchestration** | Coordinate multi-step workflows across multiple systems in the right order |
-| **Security & Compliance** | Enforce security policies, manage SSH keys, apply patches |
-| **CI/CD Integration** | Trigger deployments as part of a pipeline (Jenkins, GitLab CI, GitHub Actions) |
+| Use Case                     | Description                                                                    |
+|------------------------------|--------------------------------------------------------------------------------|
+| **Configuration Management** | Ensure all servers have the correct packages, users, and config files          |
+| **Application Deployment**   | Deploy code, restart services, run migrations                                  |
+| **Provisioning**             | Spin up cloud infrastructure (EC2 instances, VPCs, DNS records)                |
+| **Orchestration**            | Coordinate multi-step workflows across multiple systems in the right order     |
+| **Security & Compliance**    | Enforce security policies, manage SSH keys, apply patches                      |
+| **CI/CD Integration**        | Trigger deployments as part of a pipeline (Jenkins, GitLab CI, GitHub Actions) |
 
 ---
 
 ## Ansible vs. Similar Tools
 
-| Feature | Ansible | Puppet | Chef | Terraform |
-|---|---|---|---|---|
-| Agent required | No | Yes | Yes | No |
-| Language | YAML | DSL (Ruby-based) | Ruby DSL | HCL |
-| Push vs Pull | Push | Pull | Pull | Push |
-| Primary focus | Config + orchestration | Config management | Config management | Infrastructure provisioning |
-| Learning curve | Low | High | High | Medium |
+| Feature        | Ansible                | Puppet            | Chef              | Terraform                   |
+|----------------|------------------------|-------------------|-------------------|-----------------------------|
+| Agent required | No                     | Yes               | Yes               | No                          |
+| Language       | YAML                   | DSL (Ruby-based)  | Ruby DSL          | HCL                         |
+| Push vs Pull   | Push                   | Pull              | Pull              | Push                        |
+| Primary focus  | Config + orchestration | Config management | Config management | Infrastructure provisioning |
+| Learning curve | Low                    | High              | High              | Medium                      |
 
-> **Note:** Ansible and Terraform are often used together — Terraform provisions infrastructure, and Ansible configures it.
+> **Note:** Ansible and Terraform are often used together — Terraform provisions infrastructure, and Ansible configures
+> it.
 
 ---
 
@@ -215,7 +244,8 @@ Save the following as `hello.yml` and run it with `ansible-playbook hello.yml`:
 
 ## Ansible Galaxy
 
-**Ansible Galaxy** (galaxy.ansible.com) is the official hub for sharing and downloading community-written roles and collections. Instead of writing automation for common tasks from scratch, you can pull in well-tested roles:
+**Ansible Galaxy** (galaxy.ansible.com) is the official hub for sharing and downloading community-written roles and
+collections. Instead of writing automation for common tasks from scratch, you can pull in well-tested roles:
 
 ```bash
 # Install a community role
@@ -227,6 +257,7 @@ ansible-galaxy install geerlingguy.nginx
 ## Key Strengths & Limitations
 
 **Strengths**
+
 - Extremely low barrier to entry — YAML is readable by non-developers
 - No agents = easy adoption, no maintenance overhead on managed nodes
 - Massive ecosystem (thousands of modules, Galaxy roles)
@@ -234,6 +265,7 @@ ansible-galaxy install geerlingguy.nginx
 - Strong integration with cloud providers and CI/CD tools
 
 **Limitations**
+
 - Can be slower than agent-based tools at very large scale (SSH overhead)
 - YAML can become unwieldy for very complex logic
 - Error messages can sometimes be cryptic for beginners
